@@ -16,6 +16,16 @@ def center_window(window, width, height):
     y = (screen_height - height) // 2
     window.geometry(f"{width}x{height}+{x}+{y}")
 
+def close_gameboard(game_board):
+    game_board.destroy()
+    global board, sign
+    board = [[" " for x in range(3)] for y in range(3)]
+    sign = 0
+    play()
+
+def close_game():
+    if messagebox.askokcancel("Выход", "Вы уверены, что хотите выйти из игры?"):
+        menu.destroy()
 
 def winner(b, l):
     return ((b[0][0] == l and b[0][1] == l and b[0][2] == l) or
@@ -42,17 +52,14 @@ def get_text(i, j, gb, l1, l2):
         sign += 1
         button[i][j].config(text=board[i][j])
     if winner(board, "X"):
-        gb.destroy()
         box = messagebox.showinfo("Крестики нолики", "Игрок №1 победил")
-        exit()
+        close_gameboard(gb)
     elif winner(board, "O"):
-        gb.destroy()
         box = messagebox.showinfo("Крестики нолики", "Игрок №2 победил")
-        exit()
+        close_gameboard(gb)
     elif (isfull()):
-        gb.destroy()
         box = messagebox.showinfo("Крестики нолики", "Ничья")
-        exit()
+        close_gameboard(gb)
 
 
 def isfree(i, j):
@@ -132,20 +139,17 @@ def get_text_pc(i, j, gb, l1, l2):
         button[i][j].config(text=board[i][j])
     x = True
     if winner(board, "X"):
-        gb.destroy()
         x = False
         box = messagebox.showinfo("Крестики нолики", "Вы победили!")
-        exit()
+        close_gameboard(gb)
     elif winner(board, "O"):
-        gb.destroy()
         x = False
         box = messagebox.showinfo("Крестики нолики", "Вы проиграли!")
-        exit()
+        close_gameboard(gb)
     elif (isfull()):
-        gb.destroy()
         x = False
         box = messagebox.showinfo("Крестики нолики", "Ничья!")
-        exit()
+        close_gameboard(gb)
     if (x):
         if sign % 2 != 0:
             move = pc()
@@ -203,6 +207,7 @@ def withplayer(game_board):
 
 
 def play():
+    global menu
     menu = Tk()
     window_width = 250
     window_height = 112
@@ -211,7 +216,8 @@ def play():
     wpc = partial(withpc, menu)
     wpl = partial(withplayer, menu)
 
-
+    # Установка обработчика закрытия окна
+    menu.protocol("WM_DELETE_WINDOW", close_game)
 
     B1 = Button(menu, text="Одиночная игра", command=wpc,
                 activeforeground='gray',
@@ -222,7 +228,7 @@ def play():
                 activebackground="white", bg="gray", fg="white",
                 width=500, font='summer', bd=5)
 
-    B3 = Button(menu, text="Выход", command=menu.quit, activeforeground='gray',
+    B3 = Button(menu, text="Выход", command=close_game, activeforeground='gray',
                 activebackground="white", bg="gray", fg="white",
                 width=500, font='summer', bd=5)
 
